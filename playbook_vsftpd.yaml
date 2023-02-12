@@ -1,0 +1,71 @@
+---
+- hosts: local
+  gather_facts: true
+  become: true
+
+    # Запрашиваем логин и пароль от удалённого хоста для подключения по SSH из зашифрованного файла vars.yaml 
+  vars_files:
+    - vars.yml
+
+  tasks: 
+       # Установка aptitude, инструмента для взаимодействия с менеджером пакетов Linux
+       # Описание модуля apt: https://docs.ansible.com/ansible/2.8/modules/apt_module.html#apt-module
+    - name: Install aptitude                               
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+       # Установке необходимых системных пакетов
+    - name: Install required system packages                
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+       # Добавление ключа Docker GPG
+       # Описание модуля apt_key: https://docs.ansible.com/ansible/2.8/modules/apt_key_module.html#apt-key-module
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+       # Добавление репозитория Docker
+       # Описание модуля apt_repository: https://docs.ansible.com/ansible/2.8/modules/apt_repository_module.html#apt-repository-module
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+
+       # Установка непосредственно Docker
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+
+       # Добавление Docker в автозагрузку, запуск и проверка статуса демона
+       # Описание модуля ansible.builtin.service: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
+    - name: Run Docker demon
+      ansible.builtin.service:  
+        name: docker
+        state: started
+
+    # Настраиваем файервол для работы демона postfix
+    # Описание модуля community.general.ufw: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
+    - name: Setting firewalld - ufw for postfix at ubuntu
+      community.general.ufw:
+        rule: allow
+        name: postfix
+
