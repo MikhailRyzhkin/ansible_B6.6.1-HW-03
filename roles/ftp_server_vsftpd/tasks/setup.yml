@@ -1,0 +1,25 @@
+
+      # Установка aptitude, инструмента для взаимодействия с менеджером пакетов Linux
+      # Описание модуля apt: https://docs.ansible.com/ansible/2.8/modules/apt_module.html#apt-module
+
+      # Установка vsftpd
+   - name: Update apt and install vsftpd
+     apt:
+       name: vsftpd
+       state: latest
+
+      # Добавление vsftpd в автозагрузку, запуск демона
+      # Описание модуля ansible.builtin.service: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
+   - name: Run vsftpd demon
+     ansible.builtin.service:  
+       name: vsftpd
+       state: started
+
+      # Настраиваем файервол для работы демона vsftpd
+      # Описание модуля community.general.ufw: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
+   #- name: Setting firewalld - ufw for vsftpd at ubuntu
+     #community.general.ufw:
+       #rule: allow
+       #name: vsftpd
+     #notify: 
+     #- restart_ufw

@@ -1,0 +1,5 @@
+---
+# tasks file for ftp_server_vsftpd
+# 
+- include_tasks: setup.yml
+- include_tasks: configuration.yml
